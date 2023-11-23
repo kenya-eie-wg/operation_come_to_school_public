@@ -1,0 +1,6 @@
+"0","make_adm2_target_plot(adm2_targets, ""West Pokot"") + make_adm2_pop_plot(adm2_targets, ""West Pokot"")"
+"2","Warning: attribute variables are assumed to be spatially constant throughout all geometries"
+"2","Warning: [38;5;238mIgnoring unknown parameters: `na.translate`[39m"
+"2","Joining with `by = join_by(adm1_pcode, adm2_pcode)`"
+"2","Warning: attribute variables are assumed to be spatially constant throughout all geometries"
+"2","Warning: [38;5;238mIgnoring unknown parameters: `na.translate`[39m"

@@ -1,0 +1,134 @@
+county,constituency,partner,adm1_pcode,adm2_pcode,fo
+Narok,Narok East,WERK,KE033,KE033180,Kisumu
+Narok,Narok North,WERK,KE033,KE033179,Kisumu
+Narok,Narok South,WERK,KE033,KE033181,Kisumu
+Narok,Narok West,WERK,KE033,KE033182,Kisumu
+Narok,Kilgoris,WERK,KE033,KE033177,Kisumu
+Kajiado,Kajiado Central,WERK,KE034,KE034184,Nairobi
+Kajiado,Kajiado North,WERK,KE034,KE034183,Nairobi
+Kajiado,Kajiado West,WERK,KE034,KE034185,Nairobi
+Kajiado,Kajiado South,WERK,KE034,KE034187,Nairobi
+Kwale,Lunga Lunga,WERK,KE002,KE002008,Nairobi
+Kwale,Kinango,WERK,KE002,KE002010,Nairobi
+Kwale,Matuga,WERK,KE002,KE002009,Nairobi
+Kwale,Msambweni,WERK,KE002,KE002007,Nairobi
+Tana River,Bura,WERK,KE004,KE004020,Garissa
+Tana River,Garsen,WERK,KE004,KE004018,Garissa
+Tana River,Galole,WERK,KE004,KE004019,Garissa
+Kilifi,Ganze,WERK,KE003,KE003015,Nairobi
+Kilifi,Kaloleni,WERK,KE003,KE003013,Nairobi
+Kilifi,Kilifi North,WERK,KE003,KE003011,Nairobi
+Kilifi,Kilifi South,WERK,KE003,KE003012,Nairobi
+Kilifi,Magarini,WERK,KE003,KE003017,Nairobi
+Kilifi,Malindi,WERK,KE003,KE003016,Nairobi
+Kilifi,Rabai,WERK,KE003,KE003014,Nairobi
+West Pokot,Kacheliba,Finn Church Aid,KE024,KE024131,Lodwar
+West Pokot,Sigor,Finn Church Aid,KE024,KE024130,Lodwar
+Garissa,Balambala,Finn Church Aid,KE007,KE007028,Garissa
+Garissa,Lagdera,Finn Church Aid,KE007,KE007029,Garissa
+Garissa,Dujis,Finn Church Aid,KE007,KE007027,Garissa
+Marsabit,Laisamis,Finn Church Aid,KE010,KE010048,Garissa
+Marsabit,North Horr,Finn Church Aid,KE010,KE010046,Garissa
+Marsabit,Moyale,Finn Church Aid,KE010,KE010045,Garissa
+Marsabit,Saku,Finn Church Aid,KE010,KE010047,Garissa
+Samburu,Samburu West,Finn Church Aid,KE025,KE025133,Lodwar
+Samburu,Samburu East,Finn Church Aid,KE025,KE025135,Lodwar
+Turkana,Turkana West,Finn Church Aid,KE023,KE023124,Lodwar
+Turkana,Turkana East,Finn Church Aid,KE023,KE023128,Lodwar
+Turkana,Turkana South,Finn Church Aid,KE023,KE023127,Lodwar
+Nairobi,Kamukunji,LISP,KE047,KE047288,Nairobi
+Nairobi,Kasarani,LISP,KE047,KE047280,Nairobi
+Isiolo,Isiolo South,LISP,KE011,KE011050,Garissa
+Isiolo,Isiolo North,LISP,KE011,KE011049,Garissa
+Turkana,Turkana Central,LISP,KE023,KE023125,Lodwar
+Turkana,Loima,LISP,KE023,KE023126,Lodwar
+Nairobi,Kibra,Special Olympics,KE047,KE047278,Nairobi
+Nairobi,Kasarani,Special Olympics,KE047,KE047280,Nairobi
+Nairobi,Mathare,Special Olympics,KE047,KE047290,Nairobi
+Nairobi,Langata,Special Olympics,KE047,KE047277,Nairobi
+Nairobi,Westlands,Special Olympics,KE047,KE047274,Nairobi
+Nairobi,Starehe,Special Olympics,KE047,KE047289,Nairobi
+Nairobi,Makadara,Special Olympics,KE047,KE047287,Nairobi
+Nairobi,Roysambu,Special Olympics,KE047,KE047279,Nairobi
+Nairobi,Kamukunji,Special Olympics,KE047,KE047288,Nairobi
+Nairobi,Ruaraka,Special Olympics,KE047,KE047281,Nairobi
+Nairobi,Dagoretti,Special Olympics,KE047,KE047276,Nairobi
+Nairobi,Embakasi North,Special Olympics,KE047,KE047283,Nairobi
+Nairobi,Embakasi South,Special Olympics,KE047,KE047282,Nairobi
+Nairobi,Embakasi Central,Special Olympics,KE047,KE047284,Nairobi
+Nairobi,Embakasi East,Special Olympics,KE047,KE047285,Nairobi
+Nairobi,Embakasi West,Special Olympics,KE047,KE047286,Nairobi
+Turkana,Turkana Central,Special Olympics,KE023,KE023125,Lodwar
+Turkana,Turkana North,Special Olympics,KE023,KE023123,Lodwar
+Turkana,Turkana South,Special Olympics,KE023,KE023127,Lodwar
+Turkana,Turkana West,Special Olympics,KE023,KE023124,Lodwar
+Turkana,Turkana East,Special Olympics,KE023,KE023128,Lodwar
+Turkana,Loima,Special Olympics,KE023,KE023126,Lodwar
+Bungoma,Kanduyi,Special Olympics,KE039,KE039220,Kisumu
+Bungoma,Tongaren,Special Olympics,KE039,KE039224,Kisumu
+Bungoma,Webuye East,Special Olympics,KE039,KE039221,Kisumu
+Bungoma,Sirisia,Special Olympics,KE039,KE039217,Kisumu
+Bungoma,Bumula,Special Olympics,KE039,KE039219,Kisumu
+Bungoma,Kimilili,Special Olympics,KE039,KE039223,Kisumu
+Bungoma,Mt. Elgon,Special Olympics,KE039,KE039216,Kisumu
+Bungoma,Webuye West,Special Olympics,KE039,KE039222,Kisumu
+Isiolo,Isiolo South,Special Olympics,KE011,KE011050,Garissa
+Isiolo,Isiolo North,Special Olympics,KE011,KE011049,Garissa
+Kilifi,Ganze,Special Olympics,KE003,KE003015,Nairobi
+Kilifi,Rabai,Special Olympics,KE003,KE003014,Nairobi
+Kilifi,Malindi,Special Olympics,KE003,KE003016,Nairobi
+Kilifi,Kaloleni,Special Olympics,KE003,KE003013,Nairobi
+Kilifi,Magarini,Special Olympics,KE003,KE003017,Nairobi
+Kilifi,Kilifi North,Special Olympics,KE003,KE003011,Nairobi
+Kilifi,Kilifi South,Special Olympics,KE003,KE003012,Nairobi
+Garissa,Dujis,Special Olympics,KE007,KE007027,Garissa
+Garissa,Lagdera,Special Olympics,KE007,KE007029,Garissa
+Garissa,Fafi,Special Olympics,KE007,KE007031,Garissa
+Garissa,Dadaab,Special Olympics,KE007,KE007030,Garissa
+Garissa,Ijara,Special Olympics,KE007,KE007032,Garissa
+Garissa,Balambala,Special Olympics,KE007,KE007028,Garissa
+Marsabit,Saku,Special Olympics,KE010,KE010047,Garissa
+Marsabit,Laisamis,Special Olympics,KE010,KE010048,Garissa
+Marsabit,North Horr,Special Olympics,KE010,KE010046,Garissa
+Marsabit,Moyale,Special Olympics,KE010,KE010045,Garissa
+Samburu,Samburu West,Special Olympics,KE025,KE025133,Lodwar
+Samburu,Samburu North,Special Olympics,KE025,KE025134,Lodwar
+Samburu,Samburu East,Special Olympics,KE025,KE025135,Lodwar
+Narok,Narok North,Special Olympics,KE033,KE033179,Kisumu
+Narok,Narok East,Special Olympics,KE033,KE033180,Kisumu
+Narok,Narok South,Special Olympics,KE033,KE033181,Kisumu
+Narok,Narok West,Special Olympics,KE033,KE033182,Kisumu
+Narok,Kilgoris,Special Olympics,KE033,KE033177,Kisumu
+Kajiado,Kajiado Central,Special Olympics,KE034,KE034184,Nairobi
+Kajiado,Kajiado North,Special Olympics,KE034,KE034183,Nairobi
+Kajiado,Kajiado East,Special Olympics,KE034,KE034186,Nairobi
+Kajiado,Kajiado West,Special Olympics,KE034,KE034185,Nairobi
+Kajiado,Kajiado South,Special Olympics,KE034,KE034187,Nairobi
+West Pokot,Sigor,Special Olympics,KE024,KE024130,Lodwar
+West Pokot,Kacheliba,Special Olympics,KE024,KE024131,Lodwar
+West Pokot,Kapenguira,Special Olympics,KE024,KE024129,Lodwar
+West Pokot,Pokot South,Special Olympics,KE024,KE024132,Lodwar
+Bungoma,Sirisia,Save the Children,KE039,KE039217,Kisumu
+Bungoma,Webuye West,Save the Children,KE039,KE039222,Kisumu
+Bungoma,Mt. Elgon,Save the Children,KE039,KE039216,Kisumu
+Turkana,Turkana North,Save the Children,KE023,KE023123,Lodwar
+Wajir,Wajir North,Save the Children,KE008,KE008033,Garissa
+Wajir,Wajir South,Save the Children,KE008,KE008038,Garissa
+Wajir,Wajir East,Save the Children,KE008,KE008034,Garissa
+Baringo,Tiaty,Save the Children,KE030,KE030157,Lodwar
+Baringo,Baringo South,Save the Children,KE030,KE030160,Lodwar
+Mandera,Mandera West,Save the Children,KE009,KE009039,Garissa
+Mandera,Mandera South,Save the Children,KE009,KE009042,Garissa
+Mandera,Banissa,Save the Children,KE009,KE009040,Garissa
+Kwale,Matuga,IRCK,KE002,KE002009,Nairobi
+Kwale,Msambweni,IRCK,KE002,KE002007,Nairobi
+Kwale,Lunga Lunga,IRCK,KE002,KE002008,Nairobi
+Turkana,Turkana West,IRCK,KE023,KE023124,Lodwar
+Turkana,Turkana East,IRCK,KE023,KE023128,Lodwar
+Samburu,Samburu East,IRCK,KE025,KE025135,Lodwar
+Samburu,Samburu North,IRCK,KE025,KE025134,Lodwar
+Samburu,Samburu West,IRCK,KE025,KE025133,Lodwar
+Kajiado,Kajiado East,IRCK,KE034,KE034186,Nairobi
+Kajiado,Kajiado Central,IRCK,KE034,KE034184,Nairobi
+Marsabit,Moyale,IRCK,KE010,KE010045,Garissa
+Marsabit,Saku,IRCK,KE010,KE010047,Garissa
