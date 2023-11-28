@@ -1,0 +1,107 @@
+"0","roads %>% glimpse(
+  
+) %>% count(REGION)
+"
+"1","Rows: 13,961"
+"1",""
+"1","
+"
+"1","Columns: 23"
+"1",""
+"1","
+"
+"1","$ LINKNO     [3m[38;5;246m<chr>[39m[23m ""D341-1-1-1"", ""E1339-1-2-1"", ""E342-1-1-1"", ""E342-1-2-1"", ""E342-1-3-1"", ""E342-1-8-1"", ""E342-1-~
+$ ROADNO     [3m[38;5;246m<chr>[39m[23m ""D341"", ""E1339"", ""E342"", ""E342"", ""E342"", ""E342"", ""E342"", ""E342"", ""E342"", ""R21"", ""R21"", ""R21"",~
+$ START_KM   [3m[38;5;246m<dbl>[39m[23m 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+$ END_KM     [3m[38;5;246m<dbl>[39m[23m 0, 3, 1, 1, 1, 1, 2, 2, 0, 3, 6, 4, 1, 2, 0, 2, 1, 4, 1, 2, 12, 2, 13, 6, 2, 1, 5, 1, 0, 1, 2~
+$ LENGTHKM   [3m[38;5;246m<dbl>[39m[23m 0.08, 3.10, 1.25, 0.94, 0.53, 0.82, 2.45, 1.95, 0.40, 3.20, 6.41, 4.18, 0.86, 1.92, 0.09, 2.4~
+$ STRATDESC  [3m[38;5;246m<chr>[39m[23m ""A1"", ""D341 Keringet"", ""A1"", ""A1"", ""A1"", ""A1"", ""A1"", ""A1"", ""A1"", ""D327"", ""D327"", ""D327"", ""A1""~
+$ ENDDESC    [3m[38;5;246m<chr>[39m[23m ""DB TransNzoia"", ""A1"", ""D327"", ""D327"", ""D327"", ""D327"", ""D327"", ""D327"", ""D327"", ""E342 Siyoi"", ~
+$ ROADCLASS  [3m[38;5;246m<chr>[39m[23m ""D"", ""E"", ""E"", ""E"", ""E"", ""E"", ""E"", ""E"", ""E"", ""R"", ""R"", ""R"", ""E"", ""E"", ""E"", ""E"", ""G"", ""A"", ""A""~
+$ CLASS      [3m[38;5;246m<chr>[39m[23m ""Secondary (Main)"", ""Tertiary"", ""Tertiary"", ""Tertiary"", ""Tertiary"", ""Tertiary"", ""Tertiary"", ""~
+$ REGION     [3m[38;5;246m<chr>[39m[23m ""Rift Valley"", ""Rift Valley"", ""Rift Valley"", ""Rift Valley"", ""Rift Valley"", ""Rift Valley"", ""Ri~
+$ WIDTH      [3m[38;5;246m<dbl>[39m[23m 5.5, 5.5, 5.5, 5.5, 5.5, 6.0, 5.5, 5.5, 5.5, 4.5, 4.5, 4.5, 5.5, 5.5, 5.5, 5.5, 6.0, 7.0, 7.0~
+$ LANES      [3m[38;5;246m<int>[39m[23m 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, ~
+$ TYPE       [3m[38;5;246m<chr>[39m[23m ""Gravel"", ""Gravel"", ""Earth"", ""Gravel"", ""Earth"", ""Surface Dressing"", ""Gravel"", ""Earth"", ""Grave~
+$ SURFTYPE   [3m[38;5;246m<chr>[39m[23m ""Unpaved"", ""Unpaved"", ""Unpaved"", ""Unpaved"", ""Unpaved"", ""Paved"", ""Unpaved"", ""Unpaved"", ""Unpave~
+$ CONDITION  [3m[38;5;246m<chr>[39m[23m ""Fair"", ""Fair"", ""Good"", ""Good"", ""Good"", ""Poor"", ""Good"", ""Fair"", ""Fair"", ""Poor"", ""Fair"", ""Good~
+$ AADT       [3m[38;5;246m<dbl>[39m[23m 0, 0, 0, 0, 0, 48, 48, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 727, 727, 727, 727, 727, 727, 727, 727, ~
+$ iso3       [3m[38;5;246m<chr>[39m[23m ""KEN"", ""KEN"", ""KEN"", ""KEN"", ""KEN"", ""KEN"", ""KEN"", ""KEN"", ""KEN"", ""KEN"", ""KEN"", ""KEN"", ""KEN"", ""K~
+$ AICD_REG   [3m[38;5;246m<int>[39m[23m NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 1, 1, 1, 1, 1, 1, 1, 1, 1~
+$ TAH        [3m[38;5;246m<int>[39m[23m NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ WB_Project [3m[38;5;246m<int>[39m[23m NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ Kamp_Momba [3m[38;5;246m<int>[39m[23m NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ Nairo_Addi [3m[38;5;246m<int>[39m[23m NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N~
+$ geometry   [3m[38;5;246m<MULTILINESTRING [°]>[39m[23m MULTILINESTRING ((35.04554 ..., MULTILINESTRING ((35.05339 ..., MULTILINESTRI~"
+"1",""
+"1","
+"
+"1","Simple feature collection with 10 features and 2 fields"
+"1","
+"
+"1","Geometry type: MULTILINESTRING
+"
+"1","Dimension:     XY
+"
+"1","Bounding box:  "
+"1","xmin: 33.91336 ymin: -4.675932 xmax: 41.89908 ymax: 5.452325"
+"1","
+"
+"1","Geodetic CRS:  WGS 84
+"
+"1","  "
+"1","        REGION"
+"1","    n"
+"1","                       geometry"
+"1","
+1 "
+"1","             0"
+"1","    1"
+"1"," MULTILINESTRING ((34.08382 ..."
+"1","
+2 "
+"1","       Central"
+"1"," 2796"
+"1"," MULTILINESTRING ((36.89905 ..."
+"1","
+3 "
+"1","         Coast"
+"1","  999"
+"1"," MULTILINESTRING ((40.0706 -..."
+"1","
+4 "
+"1","       Eastern"
+"1"," 2706"
+"1"," MULTILINESTRING ((37.88191 ..."
+"1","
+5 "
+"1","       Nairobi"
+"1","  104"
+"1"," MULTILINESTRING ((36.91089 ..."
+"1","
+6 "
+"1"," North Eastern"
+"1","  441"
+"1"," MULTILINESTRING ((40.05858 ..."
+"1","
+7 "
+"1","        Nyanza"
+"1"," 2552"
+"1"," MULTILINESTRING ((34.57082 ..."
+"1","
+8 "
+"1","   Rift Valley"
+"1"," 3553"
+"1"," MULTILINESTRING ((35.09977 ..."
+"1","
+9 "
+"1","       Western"
+"1","  760"
+"1"," MULTILINESTRING ((34.75967 ..."
+"1","
+10"
+"1","          <NA>"
+"1","   49"
+"1"," MULTILINESTRING ((34.41514 ..."
+"1","
+"

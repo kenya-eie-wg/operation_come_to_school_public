@@ -19,6 +19,7 @@ library(plotly)
 library(patchwork)
 library(ggsflabel)
 library(rKenyaCensus)
+library(rgdal)
 
 options(scipen = 100)
 
@@ -63,10 +64,171 @@ all_towns_shape <-
   st_as_sf() %>%
   filter(town_type %in% c("City", "Municipality", "Township/Town", "Trading Centre"))
 
+
+roads <- sf::st_read("./data/kenya_roads/Kenya_roads_version2.shp", 
+          quiet = TRUE) %>% 
+  filter(TYPE %out% c("Gap"))
+
+```
+
+```{r}
+roads_alt <- sf::st_read("./data/hotosm_ken_roads_lines_shp/hotosm_ken_roads_lines.shp", 
+          quiet = TRUE) %>%
+  filter(highway %in% c("secondary", 
+                        "tertiary", 
+                        #"residential", 
+                        "service", 
+                        "trunk", 
+                        "secondary_link", 
+                        "tertiary_link", 
+                        "primary", 
+                        "primary_link", 
+                        "trunk_link", 
+                        "road"))
+
+roads_alt %>% glimpse()
+
+pcode2_shape %>% 
+  ggplot() + 
+  geom_sf(size = .0001) + 
+  geom_sf(aes(geometry = geometry), 
+          size = .1, colour = "blue", 
+          data = roads_alt)
+
+roads_alt  %>% 
+  count(highway)
 ```
 
 
+```{r}
+roads_alt %>% 
+  mutate(count = ifelse(!is.na(osm_id), 1))
+```
+
+
+```{r}
+roads %>% 
+  count(CLASS,
+        TYPE, 
+        SURFTYPE)
+  glimpse()
+```
+
+
+
+
+
+```{r}
+
+
+roads  %>% glimpse()
+  count(CLASS)
+```
+
+
+```{r}
+
+baringo_roads <- pcode2_shape %>% 
+  filter(adm1_en == "Baringo") %>% 
+  st_join(roads, 
+          join = st_contains)
+  
+
+pcode2_shape %>% 
+  filter(adm1_en == "Baringo") %>% 
+  st_join(roads, 
+          join = st_contains) %>% 
+  ggplot() + 
+  geom_sf(size = .001)
+
+roads %>% glimpse(
+  
+) %>% count(REGION)
+```
+
+
+
 # Admin level 1
+
+```{r eval=FALSE, adm1-version-for-deema}
+adm1 %>% 
+  group_by(county, adm1_pcode, fo) %>% 
+  summarise(partners = paste0(partner, collapse = ", "), 
+            .groups = "keep") %>% 
+  mutate(n_partners = str_count(partners, ",") + 1) %>% 
+  right_join(pcode1_shape, 
+             by = c("adm1_pcode")) %>% 
+  mutate(partners = ifelse(!is.na(partners), partners, ""), 
+         county = ifelse(!is.na(county), county, "")) %>% 
+  st_as_sf() %>% 
+  ggplot() +
+  geom_sf(aes(fill = fo), 
+          size = .001, 
+          colour = "grey90") +  
+  geom_sf_text(aes(label = county),
+               na.translate = FALSE) + 
+  scale_fill_manual(breaks = c("Garissa",
+                                  "Lodwar",
+                                  "Kisumu",
+                                  "Nairobi"),
+                    values = c("#F8766D", "#7CAE00", "#00BFC4", "#C77CFF")) +
+  
+  theme_void() + 
+  theme(plot.background = element_rect(fill = "white",
+                                       colour = "white"), 
+        plot.title = element_text(size = 15)) +
+  labs(title = "Implementing partners of UNICEF in Operation Come to School", 
+       fill = "Field office")
+
+ggsave("./img/only_fos_no_partners_adm1_map.png", 
+         height = 297, 
+         width = 400, 
+         units = c("mm"))
+```
+
+
+
+```{r}
+
+adm1 %>% 
+  group_by(county, adm1_pcode, fo) %>% 
+  summarise(partners = paste0(partner, collapse = ", "), 
+            .groups = "keep") %>% 
+  mutate(n_partners = str_count(partners, ",") + 1) %>% 
+  right_join(pcode1_shape, 
+             by = c("adm1_pcode")) %>% 
+  mutate(partners = ifelse(!is.na(partners), partners, ""), 
+         county = ifelse(!is.na(county), county, "")) %>% 
+  st_as_sf() %>% 
+  ggplot() +
+  geom_sf(aes(fill = fo), 
+          size = .001, 
+          colour = "grey90") +  
+  geom_sf_text(aes(label = county),
+               na.translate = FALSE) + 
+  geom_sf_label_repel(aes(label = paste0( str_wrap(partners, 25))), 
+                na.translate = FALSE, 
+                size = 3, 
+                alpha = .6, 
+                fill = "#fde725") +
+  scale_fill_manual(breaks = c("Garissa",
+                                  "Lodwar",
+                                  "Kisumu",
+                                  "Nairobi"),
+                    values = c("#F8766D", "#7CAE00", "#00BFC4", "#C77CFF")) +
+  
+  theme_void() + 
+  theme(plot.background = element_rect(fill = "white",
+                                       colour = "white"), 
+        plot.title = element_text(size = 15)) +
+  labs(title = "Implementing partners of UNICEF in Operation Come to School", 
+       fill = "Field office")
+
+  ggsave("./img/implementing_partner_adm1_map.png", 
+         height = 297, 
+         width = 400, 
+         units = c("mm"))
+```
 
 
 # Plots for field offices
@@ -162,6 +324,54 @@ make_adm2_pop_plot <- function(tbl, county_filter) {
     
 }
 ```
+
+
+```{r make-adm2-pop-plot}
+
+make_adm2_pop_plot2 <- function(tbl, county_filter) {
+  
+  tbl %>% 
+    filter(county == county_filter) %>% 
+    right_join(pcode2_shape %>% 
+                 select(-fo) %>% 
+                 filter(adm1_en == county_filter)) %>% 
+    st_as_sf() %>% 
+    ggplot() + 
+    geom_sf(aes(fill = children_0_17), 
+            size = 0.001, colour = "grey70") + 
+    scale_fill_viridis(option = "mako", direction = -1, 
+                       trans = "log10", 
+                       labels = number_format(scale = 1/1000, suffix = "K"), 
+                       begin = .1) + 
+    geom_point(aes(x = lon, y = lat), 
+               data = all_towns_shape %>% 
+                 st_as_sf() %>% 
+                 mutate(lon = sf::st_coordinates(.)[,1],
+                  lat = sf::st_coordinates(.)[,2]) %>% 
+                 st_intersection(., pcode2_shape %>% filter(adm1_en == county_filter)) %>% 
+                 st_make_valid(), 
+               colour = "#f1605d", pch = 15, alpha = .7) + 
+    geom_sf_label_repel(aes(label = paste0(adm2_en, "\n", 
+                                             "Population: ", comma(population), "\n", 
+                                             "Children: ", comma(children_0_17))), 
+                  na.translate = FALSE, 
+                  size = 1.5, 
+                  alpha = .7, 
+                  fill = "#f3f6f4", 
+                  seed = 12) +
+      theme_void() + 
+      theme(plot.background = element_rect(fill = "white", 
+                                           colour = "white"),
+            plot.title = element_text(size = 10), 
+          plot.subtitle = element_text(size = 8)) +
+      labs(title = paste0("Total population and children in ", county_filter, " County"),
+           subtitle = "Red squares are town, city and trading centres",
+           fill = "Children")
+    
+}
+```
+
+
 
 
 
