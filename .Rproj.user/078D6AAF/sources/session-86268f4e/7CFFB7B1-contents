@@ -272,7 +272,7 @@ ggsave("./img/only_fos_no_partners_adm1_map.png",
 
 
 
-```{r}
+```{r fig.height = 7}
 
 adm1 %>% 
   group_by(county, adm1_pcode, fo) %>% 
@@ -326,7 +326,7 @@ Download map [here](https://github.com/kenya-eie-wg/operation_come_to_school_pub
 
 ## Constituency-level targets
 
-```{r}
+```{r fig.height = 7}
 adm2_targets %>% 
     filter(!is.na(adm2_pcode)) %>%
     right_join(pcode2_shape %>%  
@@ -908,10 +908,6 @@ make_adm2_pop_plot(adm2_targets, "Nairobi") + make_adm2_target_plot(adm2_targets
 Request access from tmito@unicef.org for contact list for this project. 
 
 
-
-```{r}
-adm2_targets %>% filter(county == "Mandera")
-```
 
 
 
