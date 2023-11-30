@@ -322,6 +322,8 @@ Download map [here](https://github.com/kenya-eie-wg/operation_come_to_school_pub
 
 # Admin level 2
 
+<br>
+
 ## Constituency-level targets
 
 ```{r}
@@ -376,21 +378,18 @@ adm2_targets %>%
     labs(title = paste0("Proposed targets for Operation Come to School"),
          subtitle = "Red squares are town and cities; road network in pink",
          fill = "Target")
-```
-```{r}
-adm2 %>% distinct(county) %>% as.list()
-pcode1_shape %>% 
-  ggplot() + 
-  geom_sf() + 
-  geom_sf_text(aes(label = adm1_en))
 
-adm2_targets %>% filter(county == "Turkana")
-
+ ggsave("./img/adm2_targets_map.png", 
+          height = 297, 
+          width = 400, 
+          units = c("mm"))
 ```
 
+<br><br><br>
 
 
-## Coverage of implementing partners 
+## Coverage of implementing partners
+
 ```{r}
 
 
@@ -450,8 +449,11 @@ adm2 %>%
 
 ```
 
+<br><br><br>
 
 # Targets
+
+<br>
 
 ## County-level targets
 
@@ -484,6 +486,7 @@ adm2_targets %>%
 ## Constituency-level targets
 
 Targets at the constituency level (admin level 2) have been allocated based on the same methodology as above, with targets being in line with each constituency's share of poor persons. However, additional refinement is probably warranted since poverty incidence was only available at the county level, meaning that the number of poor persons per constituency was calculated based on the constituency population and the county-level poverty incidence. 
+
 
 <br>
 
@@ -530,7 +533,10 @@ These are the areas that need additional clarification from field offices and pa
 
 
 
-# Plots for field offices
+# Maps for field offices
+
+All maps in this section may be found [here](https://github.com/kenya-eie-wg/operation_come_to_school_public/tree/main/img). 
+
 
 ```{r make-adm2-target-plot}
 
