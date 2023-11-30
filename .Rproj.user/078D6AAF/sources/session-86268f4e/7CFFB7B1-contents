@@ -97,6 +97,8 @@ all_towns_shape <-
 
 # Admin level 1
 
+<br>
+
 ```{r version-for-deema, eval=FALSE}
 
 
@@ -181,7 +183,7 @@ adm1 %>%
 #          units = c("mm"))
 ```
 
-
+Download map [here](https://github.com/kenya-eie-wg/operation_come_to_school_public/blob/main/img/implementing_partner_adm1_map.png)
 
 <br><br><br>
 
