@@ -1,0 +1,44 @@
+"0","  tbl %>% 
+    filter(county == county_filter) %>% 
+    right_join(pcode2_shape %>% 
+                 select(-fo) %>% 
+                 filter(adm1_en == county_filter)) %>% 
+    st_as_sf() %>% 
+    ggplot() + 
+    geom_sf(aes(fill = children_0_17), 
+            size = 0.001, colour = ""grey70"") + 
+    scale_fill_viridis(option = ""mako"", direction = -1, 
+                       trans = ""log10"", 
+                       labels = number_format(scale = 1/1000, suffix = ""K""), 
+                       begin = .1) + 
+    geom_sf(size = .1, colour = ""grey"", 
+            data = 
+              roads %>% st_intersection(pcode1_shape %>% filter(adm1_en == county_filter))) +
+    geom_point(aes(x = lon, y = lat), 
+               data = all_towns_shape %>% 
+                 st_as_sf() %>% 
+                 mutate(lon = sf::st_coordinates(.)[,1],
+                  lat = sf::st_coordinates(.)[,2]) %>% 
+                 st_intersection(., pcode2_shape %>% filter(adm1_en == county_filter)) %>% 
+                 st_make_valid(), 
+               colour = ""#f1605d"", pch = 15, alpha = .7) + 
+    geom_sf_label_repel(aes(label = paste0(adm2_en, ""\n"", 
+                                             ""Population: "", comma(population), ""\n"", 
+                                             ""Children: "", comma(children_0_17))), 
+                  na.translate = FALSE, 
+                  size = 1.5, 
+                  alpha = .7, 
+                  fill = ""#f3f6f4"", 
+                  seed = 12) +
+      theme_void() + 
+      theme(plot.background = element_rect(fill = ""white"", 
+                                           colour = ""white""),
+            plot.title = element_text(size = 10), 
+          plot.subtitle = element_text(size = 8)) +
+      labs(title = paste0(""Total population and children in "", county_filter, "" County""),
+           subtitle = ""Red squares are town, city and trading centres"",
+           fill = ""Children"")
+"
+"2","Error in UseMethod(""filter"") : 
+  no applicable method for 'filter' applied to an object of class ""function""
+"
