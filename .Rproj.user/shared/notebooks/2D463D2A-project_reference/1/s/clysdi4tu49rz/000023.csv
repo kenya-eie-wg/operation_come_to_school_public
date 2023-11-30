@@ -1,0 +1,15 @@
+"0","adm2_targets <- adm2_targets_all_cols %>%
+  mutate(children_0_17 = age_0_4 + age_5_9 + age_10_14 + age_15_17) %>% 
+  select(adm1_pcode, county, adm2_pcode, constituency, fo, partners, n_partners,
+         population, number_of_households, average_household_size, 
+         children_0_17, poverty_incidence, poor_persons, 
+         combined_target, 
+         werk_target, fca_target, lisp_target, 
+         save_target, irck_target, so_target) %>% 
+  
+  
+
+```
+"
+"2","Error: attempt to use zero-length variable name
+"

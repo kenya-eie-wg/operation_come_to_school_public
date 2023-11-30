@@ -59,9 +59,19 @@ adm2 <- read_csv("./data/adm2_reference.csv")
 adm1 <- adm2 %>% 
   distinct(county, partner, adm1_pcode, fo) 
 
-adm2_targets <- read_csv("./data/adm2_targets.csv") 
-
 locations <- read_csv("./data/locations.csv")
+
+census_adm2_incomplete <- read_csv("./data/census_adm2_incomplete.csv")
+
+poverty <- read_csv("./data/poverty_chart.csv") %>% 
+  `colnames<-`(c("county", "poverty_incidence", "distribution_of_poor", 
+                 "poverty_gap", "severity_of_poverty", "population", "number_of_poor")) %>% 
+  mutate(county = str_replace_all(county, "Taita/Taveta", "Taita Taveta"), 
+         county = str_replace_all(county, "Elgeyo/Marakwet", "Elgeyo-Marakwet"), 
+         county = str_replace_all(county, "Nairobi City", "Nairobi")) %>% 
+  left_join(locations %>% 
+              distinct(adm1_en, adm1_pcode), 
+            by = c("county" = "adm1_en"))
 
 pcode1_shape <- 
   sf::st_read("./data/ken_adm_iebc_20191031_shp/ken_admbnda_adm1_iebc_20191031.shp", 
@@ -79,7 +89,8 @@ pcode2_shape <-
                         adm1_en %in% c("Nairobi", "Kilifi", "Kwale", "Kajiado") ~ "Nairobi"))
 
 roads <- sf::st_read("./data/kenya_roads_filtered/kenya_roads_filtered.shp", 
-          quiet = TRUE)
+          quiet = TRUE) %>% 
+  st_transform(crs = 4326)
 
 all_towns_shape <- 
   sf::st_read("./data/kenya_all_towns/kenya_all_towns_eeTVhKM.shp", 
@@ -88,7 +99,129 @@ all_towns_shape <-
   st_as_sf() %>%
   filter(town_type %in% c("City", "Municipality", "Township/Town", "Trading Centre"))
 
+sf_use_s2(FALSE)
 
+```
+
+```{r}
+
+adm1_list <- adm1 %>% distinct(adm1_pcode) %>% as.list()
+adm2_list <- adm2 %>% distinct(adm2_pcode) %>% as.list()
+
+adm2_targets_all_cols <- adm2 %>% 
+  rbind(
+    locations %>%
+    filter(adm1_pcode %in% adm1_list$adm1_pcode) %>% 
+    filter(adm2_pcode %out% adm2_list$adm2_pcode) %>% 
+    select(county = adm1_en, adm1_pcode, constituency = adm2_en, adm2_pcode) %>% 
+    mutate(fo = case_when(county %in% c("Samburu", "Turkana", "West Pokot", "Baringo") ~ "Lodwar", 
+                          county %in% c("Garissa", "Isiolo", "Mandera", "Marsabit", "Tana River", "Wajir") ~ "Garissa", 
+                          county %in% c("Bungoma", "Narok") ~ "Kisumu", 
+                          county %in% c("Nairobi", "Kilifi", "Kwale", "Kajiado") ~ "Nairobi"), 
+           partner = NA_character_)
+  ) %>% 
+  mutate(partner = ifelse(str_detect(constituency, "Embakasi|Roysambu|Ruaraka"), 
+                          "LISP",
+                          partner)) %>% 
+  mutate(adm2_pcode = ifelse(constituency == "West Pokot" & county == "West Pokot", 
+                             "KE024131", adm2_pcode)) %>% 
+  arrange(partner) %>% 
+  group_by(adm2_pcode, constituency, county, adm1_pcode, fo) %>% 
+  summarise(partners = paste0(partner, collapse = ", "), 
+            .groups = "keep") %>% 
+  mutate(constituency = str_trim(constituency)) %>% 
+  left_join(census_adm2_incomplete %>% 
+              filter(!is.na(adm2_pcode)) %>% 
+              select(adm2_pcode, population, number_of_households, average_household_size, 
+                     matches("age_")), 
+            by = c("adm2_pcode" = "adm2_pcode")) %>% 
+  mutate(population = case_when(str_detect(constituency, "Embakasi") ~ 983233 / 5, 
+                                str_detect(constituency, "Roysambu|Kasarani|Ruaraka") ~ 772586 / 3,
+                                TRUE ~ population), 
+         number_of_households = case_when(str_detect(constituency, "Embakasi") ~ 347955 / 5, 
+                                          str_detect(constituency, "Roysambu|Kasarani|Ruaraka") ~ 271290 / 3,
+                                          TRUE ~ number_of_households), 
+         average_household_size = case_when(
+           str_detect(constituency, "Embakasi") ~ 2.8,
+           str_detect(constituency, "Roysambu|Ruaraka|Kasarani") ~ 2.8, 
+           TRUE ~ average_household_size), 
+         age_0_4 = case_when(str_detect(constituency, "Embakasi") ~ 125958 / 5, 
+                                          str_detect(constituency, "Roysambu|Kasarani|Ruaraka") ~ 178350 / 3,
+                                          TRUE ~ age_0_4), 
+         age_5_9 = case_when(str_detect(constituency, "Embakasi") ~ 98534 / 5, 
+                                          str_detect(constituency, "Roysambu|Kasarani|Ruaraka") ~ 146439 / 3,
+                                          TRUE ~ age_5_9), 
+         age_10_14 = case_when(str_detect(constituency, "Embakasi") ~ 80440 / 5, 
+                                          str_detect(constituency, "Roysambu|Kasarani|Ruaraka") ~ 126949 / 3,
+                                          TRUE ~ age_10_14), 
+         age_15_17 = case_when(str_detect(constituency, "Embakasi") ~ 40796 / 5, 
+                                          str_detect(constituency, "Roysambu|Kasarani|Ruaraka") ~ 66974 / 3,
+                                          TRUE ~ age_15_17)) %>% 
+  distinct(adm2_pcode, constituency, adm1_pcode, county, fo, partners, 
+           population, number_of_households, average_household_size, 
+           age_0_4, age_5_9, age_10_14, age_15_17) %>% 
+  group_by(adm2_pcode, constituency, county, adm1_pcode, fo, partners) %>%
+  # Consolidating the constituencies with more than one sub-county in them
+  summarise(population = sum(population, na.rm = TRUE), 
+            number_of_households = sum(number_of_households, na.rm = TRUE), 
+            # This is to consolidate the constituencies where there are multiple sub-counties
+            age_0_4 = sum(age_0_4, na.rm = TRUE), 
+            age_5_9 = sum(age_5_9, na.rm = TRUE), 
+            age_10_14 = sum(age_10_14, na.rm = TRUE), 
+            age_15_17 = sum(age_15_17, na.rm = TRUE)) %>%
+  ungroup() %>% 
+  mutate(average_household_size = population / number_of_households) %>%
+  mutate(n_partners = str_count(partners, ",") + 1) %>% 
+  left_join(poverty %>% 
+              filter(!is.na(adm1_pcode)) %>% 
+              select(adm1_pcode, poverty_incidence), 
+            by = "adm1_pcode") %>% 
+  mutate(poor_persons = poverty_incidence / 100 * population) %>% 
+  mutate(werk_total_target = ifelse(str_detect(partners, "WERK"), 40720, 0), 
+         fca_total_target = ifelse(str_detect(partners, "Finn Church Aid"), 36500, 0),
+         lisp_total_target = ifelse(str_detect(partners, "LISP"), 19044, 0),
+         save_subtotal_target = case_when(str_detect(partners, "Save the Children") & 
+                                            county == "Bungoma" ~ 4963, 
+                                          str_detect(partners, "Save the Children") & 
+                                            county == "Turkana" ~ 10504,
+                                          str_detect(partners, "Save the Children") & 
+                                            county == "Wajir" ~ 14717,
+                                          str_detect(partners, "Save the Children") & 
+                                            county == "Baringo" ~ 2714, 
+                                          TRUE ~ 0),
+         irck_total_target = ifelse(str_detect(partners, "IRCK"), 2500, 0)) %>% 
+  mutate(werk_catchment = ifelse(werk_total_target != 0, 
+                                            sum(poor_persons[werk_total_target != 0]), 
+                                            0), 
+         fca_catchment = ifelse(fca_total_target != 0, sum(poor_persons[fca_total_target != 0]), 0), 
+         lisp_catchment = ifelse(lisp_total_target != 0, sum(poor_persons[lisp_total_target != 0]), 0), 
+         irck_catchment = ifelse(irck_total_target != 0, sum(poor_persons[irck_total_target != 0]), 0)) %>%
+  mutate(werk_target = poor_persons / werk_catchment * werk_total_target, 
+         fca_target = poor_persons / fca_catchment * fca_total_target, 
+         lisp_target = poor_persons / lisp_catchment * lisp_total_target, 
+         irck_target = poor_persons / irck_catchment * irck_total_target,
+         so_target = NA_integer_) %>% 
+  group_by(adm1_pcode) %>% 
+  mutate(save_catchment = ifelse(save_subtotal_target != 0, sum(poor_persons[save_subtotal_target != 0]), 0),
+         save_target = poor_persons / save_catchment * save_subtotal_target) %>% 
+  ungroup() %>% 
+  mutate_at(vars(werk_target, fca_target, lisp_target, 
+                 save_target, irck_target, so_target), ~ ifelse(is.nan(.x), 0, .x)) %>% 
+  # Special Olympics left out for the moment since they don't have targets
+  mutate(combined_target = (werk_target + fca_target + lisp_target + save_target + irck_target)) %>% 
+  mutate_at(vars(werk_target, fca_target, lisp_target, save_target, irck_target, combined_target), 
+            ~ round(.))
+
+adm2_targets <- adm2_targets_all_cols %>%
+  mutate(children_0_17 = age_0_4 + age_5_9 + age_10_14 + age_15_17) %>% 
+  select(adm1_pcode, county, adm2_pcode, constituency, fo, partners, n_partners,
+         population, number_of_households, average_household_size, 
+         children_0_17, poverty_incidence, poor_persons, 
+         combined_target, 
+         werk_target, fca_target, lisp_target, 
+         save_target, irck_target, so_target)
+  
+  
 
 ```
 
@@ -187,11 +320,144 @@ Download map [here](https://github.com/kenya-eie-wg/operation_come_to_school_pub
 
 <br><br><br>
 
-# Breakdown of targets
+# Admin level 2
+
+## Constituency-level targets
+
+```{r}
+adm2_targets %>% 
+    filter(!is.na(adm2_pcode)) %>%
+    right_join(pcode2_shape %>%  
+               select(-fo),
+               by = "adm2_pcode") %>%
+    st_as_sf() %>% 
+    ggplot() + 
+    geom_sf(size = .001, colour = "grey70", 
+            aes(fill = combined_target)) + 
+    scale_fill_viridis(direction = -1, labels = comma, 
+                       breaks = c(1000, 3000, 5000, 7000, 9000, 11000), 
+                       limits = c(1, 11000), 
+                       begin = .1, end = .9) + 
+    # Bungoma continues to be a problem
+     geom_sf(size = .1, colour = "#f5908e", alpha = .7,
+             data = 
+               roads %>% 
+               st_intersection(., pcode1_shape %>% 
+                                 filter(adm1_en %in% 
+                                          c("Narok", "Kajiado", "Kwale", "Tana River", 
+                                            "Kilifi", "West Pokot", "Garissa", "Marsabit",
+                                            "Samburu", "Turkana", "Nairobi", "Isiolo", 
+                                            "Bungoma", "Wajir", "Baringo", "Mandera")))) +
+    geom_point(aes(x = lon, y = lat), 
+             data = all_towns_shape %>% 
+               st_as_sf() %>% 
+               mutate(lon = sf::st_coordinates(.)[,1],
+                lat = sf::st_coordinates(.)[,2]) %>% 
+               st_intersection(., pcode2_shape %>% 
+                                 filter(adm1_en %in% 
+                                          c("Narok", "Kajiado", "Kwale", "Tana River", 
+                                            "Kilifi", "West Pokot", "Garissa", "Marsabit",
+                                            "Samburu", "Turkana", "Nairobi", "Isiolo", 
+                                            "Bungoma", "Wajir", "Baringo", "Mandera"))) %>% 
+               st_make_valid(), 
+             colour = "#f04743", pch = 15, alpha = .75) +
+    # geom_sf_label_repel(aes(label = paste0(adm2_en, "\n", 
+    #                                        "Target: ", comma(combined_target), "\n", 
+    #                                        "Partners: ", str_wrap(partners, 25))), 
+    #             size = 1.5, 
+    #             alpha = .6, 
+    #             fill = "#f3f6f4",
+    #             seed = 12) +
+    theme_void() + 
+    theme(plot.background = element_rect(fill = "white", 
+                                         colour = "white"), 
+          plot.title = element_text(size = 10), 
+          plot.subtitle = element_text(size = 8)) +
+    labs(title = paste0("Proposed targets for Operation Come to School"),
+         subtitle = "Red squares are town and cities; road network in pink",
+         fill = "Target")
+```
+```{r}
+adm2 %>% distinct(county) %>% as.list()
+pcode1_shape %>% 
+  ggplot() + 
+  geom_sf() + 
+  geom_sf_text(aes(label = adm1_en))
+
+adm2_targets %>% filter(county == "Turkana")
+
+```
+
+
+
+## Coverage of implementing partners 
+```{r}
+
+
+plot_partner_map <- function(tbl) {
+  
+  tbl %>% 
+    distinct(county, constituency, adm2_pcode, partner, fo) %>% 
+    right_join(pcode2_shape %>% select(-fo), by = ("adm2_pcode")) %>% 
+    sf::st_as_sf() %>% 
+    ggplot() + 
+    geom_sf(size = .01, colour = "grey70", 
+            aes(fill = fo)) +
+    scale_fill_manual(breaks = c("Garissa",
+                                  "Lodwar",
+                                  "Kisumu",
+                                  "Nairobi"),
+                    values = c("#F8766D", "#7CAE00", "#00BFC4", "#C77CFF")) +
+    theme_void() + 
+    theme(legend.position = "none", 
+          plot.title = element_text(size = 10), 
+          legend.title = element_text(size = 7)) +
+    labs(fill = "Field Office")
+}
+  
+adm2 %>% 
+  filter(!is.na(adm2_pcode) & partner == "LISP") %>% 
+  plot_partner_map() +
+  labs(title = "LISP") +
+  
+adm2 %>% 
+  filter(!is.na(adm2_pcode) & partner == "IRCK") %>% 
+  plot_partner_map() +
+  labs(title = "IRCK") +  
+  
+adm2 %>% 
+  filter(!is.na(adm2_pcode) & partner == "Save the Children") %>% 
+  plot_partner_map() +  
+  labs(title = "Save the Children") +
+
+adm2 %>% 
+  filter(!is.na(adm2_pcode) & partner == "Fin Church Aid (FCA)") %>% 
+  plot_partner_map() +
+  labs(title = "FCA") +
+
+adm2 %>% 
+  filter(!is.na(adm2_pcode) & partner == "WERK") %>% 
+  plot_partner_map() + 
+  labs(title = "WERK") + 
+  
+adm2 %>% 
+  filter(!is.na(adm2_pcode) & partner == "Special Olympics") %>% 
+  plot_partner_map() +
+  labs(title = "Special Olympics") + 
+  theme(legend.position = "right") + 
+  
+  plot_annotation(title = "Implementing Partners of UNICEF in Operation Come to School")
+
+```
+
+
+# Targets
 
 ## County-level targets
 
 Only Save the Children has been able to provide county-level targets. All other partners have only provided an overall target for the project. As no targeting methodology has been provided, targets have been provisionally allocated based on the share of the number of poor persons per county. Poverty incidence may be found [here](https://statistics.knbs.or.ke/nada/index.php/catalog/123/download/579) and county populations originate from the [census](https://github.com/Shelmith-Kariuki/rKenyaCensus).
+
+As with the constituency-level targets below, it is best to confirm these allocations with partners and make any necessary adjustments to the [main file](https://github.com/kenya-eie-wg/operation_come_to_school_public/blob/main/data/adm2_targets.csv). 
 
 <br>
 
@@ -246,8 +512,22 @@ adm2_targets %>%
 
 Download the targets [here](https://github.com/kenya-eie-wg/operation_come_to_school_public/blob/main/data/adm2_targets.csv), with the raw version [here](https://raw.githubusercontent.com/kenya-eie-wg/operation_come_to_school_public/main/data/adm2_targets.csv). 
 
+<br><br>
+
+## Additional notes for reporting staff
+
+
+These are the areas that need additional clarification from field offices and partners: 
+
+* Please refer to the list of locations to see how sub-counties have been matched to constituencies. 
+
+* Please review preliminary allocations with implementing partners. 
+
+* Special Olympics to provide detailed targets
+
 
 <br><br><br>
+
 
 
 # Plots for field offices
@@ -267,12 +547,12 @@ make_adm2_target_plot <- function(tbl, county_filter){
     geom_sf(size = .001, colour = "grey70", 
             aes(fill = combined_target)) + 
     scale_fill_viridis(direction = -1, labels = comma, 
-                       breaks = c(1000, 2000, 3000, 4000, 5000, 6000, 7000), 
-                       limits = c(1, 7027), 
+                       breaks = c(1000, 3000, 5000, 7000, 9000, 11000), 
+                       limits = c(1, 11000), 
                        begin = .1, end = .9) + 
-    # geom_sf(size = .1, colour = "#f5908e", alpha = .7,
-    #         data = 
-    #           roads %>% st_intersection(pcode1_shape %>% filter(adm1_en == county_filter))) +
+    geom_sf(size = .1, colour = "#f5908e", alpha = .7,
+            data = 
+              roads %>% st_intersection(pcode1_shape %>% filter(adm1_en == county_filter))) +
     geom_point(aes(x = lon, y = lat), 
              data = all_towns_shape %>% 
                st_as_sf() %>% 
@@ -284,7 +564,6 @@ make_adm2_target_plot <- function(tbl, county_filter){
     geom_sf_label_repel(aes(label = paste0(adm2_en, "\n", 
                                            "Target: ", comma(combined_target), "\n", 
                                            "Partners: ", str_wrap(partners, 25))), 
-                na.translate = FALSE, 
                 size = 1.5, 
                 alpha = .6, 
                 fill = "#f3f6f4",
@@ -321,9 +600,9 @@ make_adm2_pop_plot <- function(tbl, county_filter) {
                        trans = "log10", 
                        labels = number_format(scale = 1/1000, suffix = "K"), 
                        begin = .1) + 
-    # geom_sf(size = .1, colour = "#f5908e", alpha = .7,
-    #         data = 
-    #           roads %>% st_intersection(pcode1_shape %>% filter(adm1_en == county_filter))) +
+    geom_sf(size = .1, colour = "#f5908e", alpha = .7,
+            data = 
+              roads %>% st_intersection(pcode1_shape %>% filter(adm1_en == county_filter))) +
     geom_point(aes(x = lon, y = lat), 
                data = all_towns_shape %>% 
                  st_as_sf() %>% 
@@ -335,8 +614,7 @@ make_adm2_pop_plot <- function(tbl, county_filter) {
     geom_sf_label_repel(aes(label = paste0(adm2_en, "\n",
                                            "Population: ", comma(population), "\n",
                                            "Children: ", comma(children_0_17), "\n", 
-                                           "Poverty rate: ", poverty_incidence)), 
-                  na.translate = FALSE, 
+                                           "Poverty rate: ", poverty_incidence)),
                   size = 1.5, 
                   alpha = .7, 
                   fill = "#f3f6f4", 
@@ -359,48 +637,106 @@ make_adm2_pop_plot <- function(tbl, county_filter) {
 
 ## Garissa FO
 
+### Garissa 
+
 ```{r}
-make_adm2_target_plot(adm2_targets, "Garissa") + make_adm2_pop_plot(adm2_targets, "Garissa")
+make_adm2_pop_plot(adm2_targets, "Garissa") + make_adm2_target_plot(adm2_targets, "Garissa") 
+
+
+
 ```
+
+
 
 <br><br>
 
+### Isiolo
+
 ```{r}
-make_adm2_target_plot(adm2_targets, "Isiolo") + make_adm2_pop_plot(adm2_targets, "Isiolo")
+make_adm2_pop_plot(adm2_targets, "Isiolo") + make_adm2_target_plot(adm2_targets, "Isiolo") 
+
+
 ```
+
+
 
 <br><br>
 
+### Marsabit
 
 ```{r}
-make_adm2_target_plot(adm2_targets, "Mandera") + make_adm2_pop_plot(adm2_targets, "Mandera")
+make_adm2_pop_plot(adm2_targets, "Marsabit") + make_adm2_target_plot(adm2_targets, "Marsabit")
+
 ```
+
 
 <br><br>
 
+### Tana River
+
 ```{r}
-make_adm2_target_plot(adm2_targets, "Marsabit") + make_adm2_pop_plot(adm2_targets, "Marsabit")
+make_adm2_pop_plot(adm2_targets, "Tana River") + make_adm2_target_plot(adm2_targets, "Tana River")
+
 ```
+
 
 <br><br>
 
-```{r}
-make_adm2_target_plot(adm2_targets, "Tana River") + make_adm2_pop_plot(adm2_targets, "Tana River")
-```
-
-<br><br>
+### Wajir
 
 ```{r}
-make_adm2_target_plot(adm2_targets, "Wajir") + make_adm2_pop_plot(adm2_targets, "Wajir")
+make_adm2_pop_plot(adm2_targets, "Wajir") + make_adm2_target_plot(adm2_targets, "Wajir")
+
 ```
+
 
 <br><br><br>
 
 ## Kisumu FO
 
+### Bungoma
+
 ```{r}
 
-# Not all 
+# Not all points line up with the shape, not really sure how to make them valid 
+
+adm2_targets %>%
+  filter(county == "Bungoma") %>% 
+    right_join(pcode2_shape %>% 
+                 select(-fo) %>% 
+                 filter(adm1_en == "Bungoma")) %>% 
+    st_as_sf() %>% 
+    ggplot() + 
+    geom_sf(aes(fill = children_0_17), 
+            size = 0.001, colour = "grey70") + 
+    scale_fill_viridis(option = "mako", direction = -1, 
+                       trans = "log10", 
+                       labels = number_format(scale = 1/1000, suffix = "K"), 
+                       begin = .1) + 
+  # Same as above
+    # geom_point(aes(x = lon, y = lat), 
+    #            data = all_towns_shape %>% 
+    #              st_as_sf() %>% 
+    #              mutate(lon = sf::st_coordinates(.)[,1],
+    #               lat = sf::st_coordinates(.)[,2]) %>% 
+    #              st_intersection(., pcode2_shape %>% filter(adm1_en == "Bungoma")) %>% 
+    #              st_make_valid(), 
+    #            colour = "#f1605d", pch = 15, alpha = .75) + 
+    geom_sf_label_repel(aes(label = paste0(adm2_en, "\n", 
+                                             "Population: ", comma(population), "\n", 
+                                             "Children <18: ", comma(children_0_17))), 
+                  na.translate = FALSE, 
+                  size = 1.5, 
+                  alpha = .6, 
+                  fill = "#f3f6f4", 
+                  seed = 12) +
+      theme_void() + 
+      theme(plot.background = element_rect(fill = "white", 
+                                           colour = "white"),
+            plot.title = element_text(size = 10), 
+          plot.subtitle = element_text(size = 8)) +
+      labs(title = paste0("Total population and children in ", "Bungoma"),
+           fill = "Target") + 
 
 adm2_targets %>%
   filter(!is.na(adm2_pcode) & county == "Bungoma") %>%
@@ -441,54 +777,23 @@ adm2_targets %>%
             plot.title = element_text(size = 10), 
           plot.subtitle = element_text(size = 8)) +
     labs(title = paste0("Targets in Operation Come to School, ", "Bungoma", " County"),
-         fill = "Target") + 
+         fill = "Target") 
   
-adm2_targets %>%
-  filter(county == "Bungoma") %>% 
-    right_join(pcode2_shape %>% 
-                 select(-fo) %>% 
-                 filter(adm1_en == "Bungoma")) %>% 
-    st_as_sf() %>% 
-    ggplot() + 
-    geom_sf(aes(fill = children_0_17), 
-            size = 0.001, colour = "grey70") + 
-    scale_fill_viridis(option = "mako", direction = -1, 
-                       trans = "log10", 
-                       labels = number_format(scale = 1/1000, suffix = "K"), 
-                       begin = .1) + 
-  # Same as above
-    # geom_point(aes(x = lon, y = lat), 
-    #            data = all_towns_shape %>% 
-    #              st_as_sf() %>% 
-    #              mutate(lon = sf::st_coordinates(.)[,1],
-    #               lat = sf::st_coordinates(.)[,2]) %>% 
-    #              st_intersection(., pcode2_shape %>% filter(adm1_en == "Bungoma")) %>% 
-    #              st_make_valid(), 
-    #            colour = "#f1605d", pch = 15, alpha = .75) + 
-    geom_sf_label_repel(aes(label = paste0(adm2_en, "\n", 
-                                             "Population: ", comma(population), "\n", 
-                                             "Children <18: ", comma(children_0_17))), 
-                  na.translate = FALSE, 
-                  size = 1.5, 
-                  alpha = .6, 
-                  fill = "#f3f6f4", 
-                  seed = 12) +
-      theme_void() + 
-      theme(plot.background = element_rect(fill = "white", 
-                                           colour = "white"),
-            plot.title = element_text(size = 10), 
-          plot.subtitle = element_text(size = 8)) +
-      labs(title = paste0("Total population and children in, ", "Bungoma", " County"),
-           fill = "Target")
+
+
 ```
+
+
 
 <br><br>
 
-
+### Narok
 
 ```{r}
-make_adm2_target_plot(adm2_targets, "Narok") + make_adm2_pop_plot(adm2_targets, "Narok")
+make_adm2_pop_plot(adm2_targets, "Narok") + make_adm2_target_plot(adm2_targets, "Narok")
+
 ```
+
 
 
 <br><br><br>
@@ -498,28 +803,47 @@ make_adm2_target_plot(adm2_targets, "Narok") + make_adm2_pop_plot(adm2_targets, 
 
 <br>
 
+### Baringo
 
 ```{r}
-make_adm2_target_plot(adm2_targets, "Baringo") + make_adm2_pop_plot(adm2_targets, "Baringo")
+make_adm2_pop_plot(adm2_targets, "Baringo") + make_adm2_target_plot(adm2_targets, "Baringo")
+
 ```
+
+
 
 <br><br>
 
+
+
+### Samburu
+
 ```{r}
-make_adm2_target_plot(adm2_targets, "Samburu") + make_adm2_pop_plot(adm2_targets, "Samburu")
+make_adm2_pop_plot(adm2_targets, "Samburu") + make_adm2_target_plot(adm2_targets, "Samburu")
+
+
 ```
+
 
 <br><br>
 
+### Turkana
+
 ```{r}
-make_adm2_target_plot(adm2_targets, "Turkana") + make_adm2_pop_plot(adm2_targets, "Turkana")
+make_adm2_pop_plot(adm2_targets, "Turkana") + make_adm2_target_plot(adm2_targets, "Turkana") 
+
 ```
+
 
 <br><br>
 
+### West Pokot
+
 ```{r}
-make_adm2_target_plot(adm2_targets, "West Pokot") + make_adm2_pop_plot(adm2_targets, "West Pokot")
+make_adm2_pop_plot(adm2_targets, "West Pokot") + make_adm2_target_plot(adm2_targets, "West Pokot") 
+
 ```
+
 
 
 <br><br><br>
@@ -529,33 +853,59 @@ make_adm2_target_plot(adm2_targets, "West Pokot") + make_adm2_pop_plot(adm2_targ
 
 <br>
 
-```{r}
-make_adm2_target_plot(adm2_targets, "Kajiado") + make_adm2_pop_plot(adm2_targets, "Kajiado")
-```
-
-<br><br>
+### Kajiado
 
 ```{r}
-make_adm2_target_plot(adm2_targets, "Kilifi") + make_adm2_pop_plot(adm2_targets, "Kilifi")
-```
+make_adm2_pop_plot(adm2_targets, "Kajiado") + make_adm2_target_plot(adm2_targets, "Kajiado")
 
-<br><br>
-
-```{r}
-make_adm2_target_plot(adm2_targets, "Kwale") + make_adm2_pop_plot(adm2_targets, "Kwale")
 ```
 
 
 <br><br>
 
+### Kilifi
+
 ```{r}
-make_adm2_target_plot(adm2_targets, "Nairobi") + make_adm2_pop_plot(adm2_targets, "Nairobi")
+make_adm2_pop_plot(adm2_targets, "Kilifi") + make_adm2_target_plot(adm2_targets, "Kilifi")
+
 ```
+
+
+
+<br><br>
+
+### Kwale
+
+```{r}
+make_adm2_pop_plot(adm2_targets, "Kwale") + make_adm2_target_plot(adm2_targets, "Kwale")
+
+```
+
+
+
+<br><br>
+
+### Nairobi
+
+```{r}
+make_adm2_pop_plot(adm2_targets, "Nairobi") + make_adm2_target_plot(adm2_targets, "Nairobi") 
+
+
+# ggsave("./img/nairobi.png", height = 297, width = 400, units = c("mm"))
+```
+
+
 
 <br><br><br>
 
+# Contact lists
+Request access from tmito@unicef.org for contact list for this project. 
 
 
+
+```{r}
+adm2_targets %>% filter(county == "Mandera")
+```
 
 
 

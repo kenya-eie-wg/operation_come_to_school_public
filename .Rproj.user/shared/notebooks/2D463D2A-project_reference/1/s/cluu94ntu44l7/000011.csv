@@ -1,0 +1,15 @@
+"0","make_adm2_pop_plot(adm2_targets, ""Nairobi"") + make_adm2_target_plot(adm2_targets, ""Nairobi"") 
+"
+"2","Joining with `by = join_by(adm1_pcode, adm2_pcode)`"
+"2","although coordinates are longitude/latitude, st_intersection assumes that they are planar
+"
+"2","Warning: attribute variables are assumed to be spatially constant throughout all geometries"
+"2","although coordinates are longitude/latitude, st_intersection assumes that they are planar
+"
+"2","Warning: attribute variables are assumed to be spatially constant throughout all geometries"
+"2","although coordinates are longitude/latitude, st_intersection assumes that they are planar
+"
+"2","Warning: attribute variables are assumed to be spatially constant throughout all geometries"
+"2","although coordinates are longitude/latitude, st_intersection assumes that they are planar
+"
+"2","Warning: attribute variables are assumed to be spatially constant throughout all geometries"

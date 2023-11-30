@@ -1,0 +1,82 @@
+"0","adm2_targets %>%
+  filter(county == ""Bungoma"") %>% 
+    right_join(pcode2_shape %>% 
+                 select(-fo) %>% 
+                 filter(adm1_en == ""Bungoma"")) %>% 
+    st_as_sf() %>% 
+    ggplot() + 
+    geom_sf(aes(fill = children_0_17), 
+            size = 0.001, colour = ""grey70"") + 
+    scale_fill_viridis(option = ""mako"", direction = -1, 
+                       trans = ""log10"", 
+                       labels = number_format(scale = 1/1000, suffix = ""K""), 
+                       begin = .1) + 
+  # Same as above
+    # geom_point(aes(x = lon, y = lat), 
+    #            data = all_towns_shape %>% 
+    #              st_as_sf() %>% 
+    #              mutate(lon = sf::st_coordinates(.)[,1],
+    #               lat = sf::st_coordinates(.)[,2]) %>% 
+    #              st_intersection(., pcode2_shape %>% filter(adm1_en == ""Bungoma"")) %>% 
+    #              st_make_valid(), 
+    #            colour = ""#f1605d"", pch = 15, alpha = .75) + 
+    geom_sf_label_repel(aes(label = paste0(adm2_en, ""\n"", 
+                                             ""Population: "", comma(population), ""\n"", 
+                                             ""Children <18: "", comma(children_0_17))), 
+                  na.translate = FALSE, 
+                  size = 1.5, 
+                  alpha = .6, 
+                  fill = ""#f3f6f4"", 
+                  seed = 12) +
+      theme_void() + 
+      theme(plot.background = element_rect(fill = ""white"", 
+                                           colour = ""white""),
+            plot.title = element_text(size = 10), 
+          plot.subtitle = element_text(size = 8)) +
+      labs(title = paste0(""Total population and children in "", ""Bungoma""),
+           fill = ""Target"") + 
+
+adm2_targets %>%
+  filter(!is.na(adm2_pcode) & county == ""Bungoma"") %>%
+    right_join(pcode2_shape %>%  
+               select(-fo) %>% 
+               filter(adm1_en == ""Bungoma""),
+               by = ""adm2_pcode"") %>%
+    st_as_sf() %>% 
+    ggplot() + 
+    geom_sf(size = .001, colour = ""grey70"", 
+            aes(fill = combined_target)) + 
+    scale_fill_viridis(direction = -1, labels = comma, 
+                       breaks = c(1000, 2000, 3000, 4000, 5000, 6000, 7000), 
+                       limits = c(1, 7027), 
+                       begin = .1, end = .9) +
+  # For some reason, the points are not matching the shape,
+  # I'm leaving it like this for the time being
+  # Until I figure out how to fix it
+    # geom_point(aes(x = lon, y = lat), 
+    # data = all_towns_shape %>% 
+    # st_as_sf() %>% 
+    # mutate(lon = sf::st_coordinates(.)[,1],
+    # lat = sf::st_coordinates(.)[,2]) %>% 
+    # st_intersection(., pcode2_shape %>% filter(adm1_en == county_filter)) %>% 
+    # st_make_valid(), 
+    # colour = ""#f1605d"", pch = 15) +
+    geom_sf_label_repel(aes(label = paste0(adm2_en, ""\n"", 
+                                           ""Target: "", comma(combined_target), ""\n"", 
+                                           ""Partners: "", str_wrap(partners, 25))), 
+                na.translate = FALSE, 
+                size = 1.5, 
+                alpha = .6, 
+                fill = ""#f3f6f4"", 
+                seed = 12) +
+    theme_void() + 
+    theme(plot.background = element_rect(fill = ""white"", 
+                                           colour = ""white""),
+            plot.title = element_text(size = 10), 
+          plot.subtitle = element_text(size = 8)) +
+    labs(title = paste0(""Targets in Operation Come to School, "", ""Bungoma"", "" County""),
+         fill = ""Target"") 
+"
+"2","Joining with `by = join_by(adm1_pcode, adm2_pcode)`"
+"2","Warning: [38;5;238mIgnoring unknown parameters: `na.translate`[39m"
+"2","Warning: [38;5;238mIgnoring unknown parameters: `na.translate`[39m"
